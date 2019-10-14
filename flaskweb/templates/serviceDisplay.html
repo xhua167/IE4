@@ -1,0 +1,95 @@
+{# This html is the service display page. #}
+
+{% extends "layout.html" %}
+
+{% block head %}
+    <style>
+        a {
+            color: dodgerblue;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+{% endblock head %}
+
+{% block content %}
+
+    {# This is the breadcrumb. #}
+    <nav aria-label="breadcrumb">
+            <ol class="breadcrumb" style="background: white">
+                <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page" style="text-transform: capitalize" >{{ service_name }}</li>
+            </ol>
+    </nav>
+
+    <div class="container">
+
+        <h3 style="text-transform: capitalize">{{ service_name }} services</h3>
+
+        {# For the non-hotline services, display a map. #}
+        {% if service_name != 'hotlines' %}
+            {# This is the map #}
+            <div id="map1" style="height:300px"></div>
+                <br />
+        {% endif %}
+
+        {# This is the table that show the information. #}
+        <table class="table" style="margin-top: 20px">
+            <thead class="thead-light">
+                <tr>
+                  <th scope="col" style="width: 30%">Name</th>
+                  <th scope="col" style="width: 50%">Description</th>
+                  <th scope="col" style="width: 10%">Rating</th>
+                  <th scope="col" style="display: none">longitude</th>
+                  <th scope="col" style="display: none">latitude</th>
+                  <th scope="col" style="display: none">type</th>
+                  <th scope="col" style="display: none">id_</th>
+                  <th scope="col" style="width: 10%"></th>
+                </tr>
+            </thead>
+            {% for i in pagination_data %}
+                {% if i['What'] != 'Unknown' %}
+                    <tbody>
+                        <tr class="coordinates">
+                          {# Adjust the heart. #}
+                          {% if favoList != [] %}
+                              {% if i not in favoList %}
+                                  <td class="description">{{ i['Name'] }} ({{ i['Type'] }})
+                                      <a href="{{ url_for('addFavorite', service_id=i['id_'], service_name=i['Type']) }}">
+                                        <span class="heart"><i class="fa fa-heart-o" aria-hidden="true" ></i></span>
+                                      </a>
+                                  </td>
+                              {% else %}
+                                  <td class="description">{{ i['Name'] }} ({{ i['Type'] }})
+                                      <a href="{{ url_for('removeFavorite', service_id=i['id_'], service_name=i['Type']) }}">
+                                        <span class="heart"><i class="fa fa-heart" aria-hidden="true" ></i></span>
+                                      </a>
+                                  </td>
+                              {% endif %}
+                          {% else %}
+                              <td class="description">{{ i['Name'] }} ({{ i['Type'] }})
+                                  <a href="{{ url_for('addFavorite', service_id=i['id_'], service_name=i['Type']) }}">
+                                    <span class="heart"><i class="fa fa-heart-o" aria-hidden="true" ></i></span>
+                                  </a>
+                              </td>
+                          {% endif %}
+                          <td>{{ i['What'] }}</td>
+                          <td>{{ i['meanRating'] }}</td>
+                          <td class="longitude" style="display: none">{{ i['Longitude'] }}</td>
+                          <td class="latitude" style="display: none">{{ i['Latitude'] }}</td>
+                          <td class="type" style="display: none">{{ i['Type'] }}</td>
+                          <td class="id_" style="display: none">{{ i['id_'] }}</td>
+                          <td><a href="{{ url_for('detailedInfo', service_id=i['id_'], servicename=service_name) }}" class="btn btn-primary">More</a></td>
+                        </tr>
+                    </tbody>
+                {% endif %}
+            {% endfor %}
+        </table>
+        {{ pagination.links }}
+    </div>
+
+
+{% endblock content %}
+
